@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "net.dreemurr.chattimestamp.mixin",
+  "compatibilityLevel": "JAVA_16",
+  "client": [
+    "ChatHudListenerMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
