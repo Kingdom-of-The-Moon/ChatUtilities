@@ -1,5 +1,5 @@
 ## Features
-Bedrock Paperdoll ported to Minecraft Java
+Chat Timestamps!
 
 ## License
 Distributed under the GNU LESSER GENERAL PUBLIC LICENSE 2.1. See `LICENSE` for more information.
