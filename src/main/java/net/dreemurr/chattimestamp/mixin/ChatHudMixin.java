@@ -1,13 +1,16 @@
 package net.dreemurr.chattimestamp.mixin;
 
 import net.dreemurr.chattimestamp.ChatTimeStamp;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.hud.ChatHud;
 import net.minecraft.client.gui.hud.ChatHudLine;
+import net.minecraft.client.util.ChatMessages;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.math.MathHelper;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -25,6 +28,7 @@ public abstract class ChatHudMixin {
     private int spam = 1;
     private int queueSize = 0;
 
+    @Shadow @Final private MinecraftClient client;
     @Shadow @Final private Deque<Text> messageQueue;
     @Shadow @Final private List<ChatHudLine<Text>> messages;
     @Shadow @Final private List<ChatHudLine<OrderedText>> visibleMessages;
@@ -80,6 +84,10 @@ public abstract class ChatHudMixin {
 
     @Shadow protected abstract void addMessage(Text message, int messageId);
 
+    @Shadow public abstract int getWidth();
+
+    @Shadow public abstract double getChatScale();
+
     //anti spam
     public boolean chattimestamp$antiSpam(Text message, boolean isQueue) {
         //get messages
@@ -107,8 +115,16 @@ public abstract class ChatHudMixin {
                 this.messageQueue.addLast(formatted);
             } else {
                 ChatHudLine<Text> lastChatMessage = this.messages.get(0);
+
+                //message history
                 this.messages.set(0, new ChatHudLine<>(lastChatMessage.getCreationTick(), formatted, lastChatMessage.getId()));
-                this.visibleMessages.set(0, new ChatHudLine<>(lastChatMessage.getCreationTick(), formatted.asOrderedText(), lastChatMessage.getId()));
+
+                //hud message list
+                int i = MathHelper.floor((double)this.getWidth() / this.getChatScale());
+                List<OrderedText> list = ChatMessages.breakRenderedChatMessageLines(formatted, i, this.client.textRenderer);
+                for (int j = 0, k = list.size() - 1; j < list.size(); j++, k--) {
+                    this.visibleMessages.set(k, new ChatHudLine<>(lastChatMessage.getCreationTick(), list.get(j), lastChatMessage.getId()));
+                }
             }
 
             //return
