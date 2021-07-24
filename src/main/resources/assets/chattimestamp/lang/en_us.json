@@ -1,0 +1,18 @@
+{
+  "chatTimeStamp.gui.configButton": "ChatTimeStamp",
+  "chatTimeStamp.gui.configTitle": "ChatTimeStamp config",
+
+  "chatTimeStamp.config.time": "Time Messages",
+  "chatTimeStamp.config.time.seconds": "Include Seconds",
+  "chatTimeStamp.config.time.message": "Time on every message",
+  "chatTimeStamp.config.time.twelve": "12h format",
+  "chatTimeStamp.config.time.enable": "Enable Clock",
+  "chatTimeStamp.config.time.seconds.tooltip": "Include seconds on the time message",
+  "chatTimeStamp.config.time.message.tooltip": "Append the time on every message instead of once per time change",
+  "chatTimeStamp.config.time.twelve.tooltip": "Toggle between 12/24h formatting",
+  "chatTimeStamp.config.time.enable.tooltip": "Toggle the activation of the Clock",
+
+  "chatTimeStamp.config.spam": "Anti Spam",
+  "chatTimeStamp.config.spam.enable": "Enable Anti Spam",
+  "chatTimeStamp.config.spam.enable.tooltip": "Toggle the activation of Anti Spam"
+}

@@ -19,8 +19,12 @@
 
   "environment": "client",
   "entrypoints": {
-    "client": [],
-    "modmenu": []
+    "client": [
+      "net.dreemurr.chattimestamp.ChatTimeStamp"
+    ],
+    "modmenu": [
+      "net.dreemurr.chattimestamp.config.ModMenuConfig"
+    ]
   },
   "mixins": [
     "chattimestamp.mixins.json"

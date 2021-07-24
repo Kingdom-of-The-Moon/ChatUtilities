@@ -4,7 +4,8 @@
   "package": "net.dreemurr.chattimestamp.mixin",
   "compatibilityLevel": "JAVA_16",
   "client": [
-    "ChatHudMixin"
+    "ChatHudMixin",
+    "ChatOptionsScreenMixin"
   ],
   "injectors": {
     "defaultRequire": 1
