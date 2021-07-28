@@ -6,7 +6,6 @@
   "client": [
     "ChatHudMixin",
     "ChatOptionsScreenMixin",
-    "ChatScreenMixin",
     "MinecraftClientMixin",
     "SleepingChatScreenMixin"
   ],
