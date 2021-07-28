@@ -5,7 +5,10 @@
   "compatibilityLevel": "JAVA_16",
   "client": [
     "ChatHudMixin",
-    "ChatOptionsScreenMixin"
+    "ChatOptionsScreenMixin",
+    "ChatScreenMixin",
+    "MinecraftClientMixin",
+    "SleepingChatScreenMixin"
   ],
   "injectors": {
     "defaultRequire": 1
