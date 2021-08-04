@@ -1,9 +1,13 @@
 package net.dreemurr.chattimestamp.config;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.dreemurr.chattimestamp.ChatTimeStamp;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.sound.SoundEvent;
+import net.minecraft.util.Identifier;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -11,6 +15,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 public class Config {
     public static final Map<String, ConfigEntry> entries = new HashMap<>();
@@ -59,6 +64,8 @@ public class Config {
         try {
             JsonObject config = new JsonObject();
 
+            runOnSave();
+
             for (Map.Entry<String, ConfigEntry> entry : entries.entrySet()) {
                 if (entry.getValue().value instanceof Number)
                     config.addProperty(entry.getKey(), (Number) entry.getValue().value);
@@ -68,15 +75,46 @@ public class Config {
                     config.addProperty(entry.getKey(), String.valueOf(entry.getValue().value));
             }
 
-            FileWriter fileWriter = new FileWriter(file);
-            String jsonString = config.toString().replaceAll(":",": ").replaceAll(",",",\n  ").replaceAll("\\{","{\n  ").replaceAll("}","\n}");
+            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+            String jsonString = gson.toJson(config);
 
+            FileWriter fileWriter = new FileWriter(file);
             fileWriter.write(jsonString);
             fileWriter.close();
         } catch (Exception e) {
             ChatTimeStamp.LOGGER.error("Failed to save config file!");
             e.printStackTrace();
         }
+    }
+
+    public static void runOnSave() {
+        //set sound event
+        try {
+            ChatTimeStamp.soundEvent = new SoundEvent(new Identifier((String) Config.entries.get("pingSoundId").value));
+        } catch (Exception e) {
+            ChatTimeStamp.soundEvent = null;
+        }
+
+        //parse hex color
+        ConfigEntry bgEntry = Config.entries.get("pingBgColor");
+        StringBuilder bgValue = new StringBuilder((String) bgEntry.value);
+
+        if (bgValue.toString().startsWith("#")) bgValue = new StringBuilder(bgValue.substring(1));
+        if (bgValue.length() < 6) {
+            char[] bgChar = bgValue.toString().toCharArray();
+
+            //special catch for 3
+            if (bgValue.length() == 3)
+                bgValue = new StringBuilder("" + bgChar[0] + bgChar[0] + bgChar[1] + bgChar[1] + bgChar[2] + bgChar[2]);
+            else
+                bgValue.append("0".repeat(Math.max(0, 6 - bgValue.toString().toCharArray().length)));
+        }
+
+        bgEntry.setValue("#" + bgValue);
+
+        //compile regex
+        String regex = (String) Config.entries.get("pingRegex").value;
+        ChatTimeStamp.pingRegex = regex.equals("") ? null : Pattern.compile(regex, 0);
     }
 
     public static void copyConfig() {
@@ -94,6 +132,9 @@ public class Config {
         entries.put("twelveHour", new ConfigEntry<>(true));
         entries.put("enableClock", new ConfigEntry<>(true));
         entries.put("enableAntiSpam", new ConfigEntry<>(true));
+        entries.put("pingRegex", new ConfigEntry<>(""));
+        entries.put("pingBgColor", new ConfigEntry<>("#ff72b7"));
+        entries.put("pingSoundId", new ConfigEntry<>("minecraft:entity.arrow.hit_player"));
     }
 
     public static class ConfigEntry<T> {

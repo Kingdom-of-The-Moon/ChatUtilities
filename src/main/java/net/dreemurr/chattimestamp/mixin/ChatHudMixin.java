@@ -3,13 +3,13 @@ package net.dreemurr.chattimestamp.mixin;
 import net.dreemurr.chattimestamp.ChatTimeStamp;
 import net.dreemurr.chattimestamp.config.Config;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.hud.ChatHud;
 import net.minecraft.client.gui.hud.ChatHudLine;
+import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.client.util.ChatMessages;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.OrderedText;
-import net.minecraft.text.Text;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.text.*;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.MathHelper;
 import org.spongepowered.asm.mixin.Final;
@@ -17,17 +17,23 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.time.LocalTime;
 import java.util.Deque;
 import java.util.List;
 
+import static net.minecraft.client.gui.DrawableHelper.fill;
+
 @Mixin(ChatHud.class)
 public abstract class ChatHudMixin {
 
     private int spam = 1;
     private int queueSize = 0;
+
+    private int x1, y1, x2, y2, color;
 
     @Shadow @Final private MinecraftClient client;
     @Shadow @Final private Deque<Text> messageQueue;
@@ -40,7 +46,7 @@ public abstract class ChatHudMixin {
         //anti spam//
         /////////////
 
-        if ((boolean) Config.entries.get("enableAntiSpam").value && messageQueue.size() >= queueSize && chattimestamp$antiSpam(message, false)) {
+        if ((boolean) Config.entries.get("enableAntiSpam").value && messageQueue.size() >= queueSize && ctt$antiSpam(message, false)) {
             ci.cancel();
             return;
         }
@@ -104,21 +110,80 @@ public abstract class ChatHudMixin {
     @Inject(at = @At("HEAD"), method = "queueMessage", cancellable = true)
     public void queueMessage(Text message, CallbackInfo ci) {
         //anti spam
-        if ((boolean) Config.entries.get("enableAntiSpam").value && chattimestamp$antiSpam(message, !this.messageQueue.isEmpty()))
+        if ((boolean) Config.entries.get("enableAntiSpam").value && ctt$antiSpam(message, !this.messageQueue.isEmpty()))
             ci.cancel();
 
         //save size
         queueSize = this.messageQueue.size();
     }
 
-    @Shadow protected abstract void addMessage(Text message, int messageId);
+    @Inject(at = @At("HEAD"), method = "addMessage(Lnet/minecraft/text/Text;I)V")
+    public void addMessageHead(Text message, int messageId, CallbackInfo ci) {
+        //play sound... if valid
+        if (ChatTimeStamp.pingRegex != null && ChatTimeStamp.pingRegex.matcher(message.getString()).find() && ChatTimeStamp.soundEvent != null)
+            MinecraftClient.getInstance().getSoundManager().play(PositionedSoundInstance.master(ChatTimeStamp.soundEvent, 1));
+    }
+
+    //yeet the bg color render
+    @Redirect(
+            method = "render",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/gui/hud/ChatHud;fill(Lnet/minecraft/client/util/math/MatrixStack;IIIII)V"
+            ),
+            slice = @Slice(
+                    from = @At(value = "INVOKE", target = "Lnet/minecraft/client/util/math/MatrixStack;translate(DDD)V"),
+                    to = @At(value = "INVOKE", target = "Lnet/minecraft/client/font/TextRenderer;drawWithShadow(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/text/OrderedText;FFI)I")
+            )
+    )
+    private void renderFill(MatrixStack matrices, int x1, int y1, int x2, int y2, int color) {
+        //save vars for future use
+        this.x1 = x1;
+        this.y1 = y1;
+        this.x2 = x2;
+        this.y2 = y2;
+        this.color = color;
+    }
+
+    //render bg with text
+    @Redirect(
+            method = "render",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/font/TextRenderer;drawWithShadow(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/text/OrderedText;FFI)I",
+                    by = 1
+            )
+    )
+    private int renderDraw(TextRenderer textRenderer, MatrixStack matrices, OrderedText text, float x, float y, int color) {
+        int bgColor = this.color;
+
+        //bruh
+        ChatTimeStamp.JustGiveMeTheStringVisitor lineString = new ChatTimeStamp.JustGiveMeTheStringVisitor();
+        text.accept(lineString);
+
+        //apply bg color
+        if (ChatTimeStamp.pingRegex != null && ChatTimeStamp.pingRegex.matcher(lineString.toString()).find()) {
+            String bgColorConfig = (String) Config.entries.get("pingBgColor").value;
+            if (bgColorConfig.startsWith("#")) bgColorConfig = bgColorConfig.substring(1);
+
+            bgColor += Integer.parseInt(bgColorConfig, 16);
+        }
+
+        //render bg
+        matrices.translate(0.0D, 0.0D, -50.0D);
+        fill(matrices, x1, y1, x2, y2, bgColor);
+        matrices.translate(0.0D, 0.0D, 50.0D);
+
+        //render text
+        return this.client.textRenderer.drawWithShadow(matrices, text, x, y, color);
+    }
 
     @Shadow public abstract int getWidth();
-
     @Shadow public abstract double getChatScale();
+    @Shadow protected abstract void addMessage(Text message, int messageId);
 
     //anti spam
-    public boolean chattimestamp$antiSpam(Text message, boolean isQueue) {
+    private boolean ctt$antiSpam(Text message, boolean isQueue) {
         //get messages
         String messageString = message.getString();
         Text lastMessage = null;
@@ -165,7 +230,7 @@ public abstract class ChatHudMixin {
                 this.messages.set(0, new ChatHudLine<>(this.client.inGameHud.getTicks(), formatted, lastChatMessage.getId()));
 
                 //hud message list
-                int i = MathHelper.floor((double)this.getWidth() / this.getChatScale());
+                int i = MathHelper.floor((double) this.getWidth() / this.getChatScale());
                 List<OrderedText> list = ChatMessages.breakRenderedChatMessageLines(formatted, i, this.client.textRenderer);
                 for (int j = 0, k = list.size() - 1; j < list.size(); j++, k--) {
                     this.visibleMessages.set(k, new ChatHudLine<>(this.client.inGameHud.getTicks(), list.get(j), lastChatMessage.getId()));

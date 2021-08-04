@@ -14,5 +14,13 @@
 
   "chatTimeStamp.config.spam": "Anti Spam",
   "chatTimeStamp.config.spam.enable": "Enable Anti Spam",
-  "chatTimeStamp.config.spam.enable.tooltip": "Toggle the activation of Anti Spam"
+  "chatTimeStamp.config.spam.enable.tooltip": "Toggle the activation of Anti Spam",
+
+  "chatTimeStamp.config.ping": "Message Pings",
+  "chatTimeStamp.config.ping.regex": "Matching Regex",
+  "chatTimeStamp.config.ping.bg": "Background Color",
+  "chatTimeStamp.config.ping.sound": "Ping Sound",
+  "chatTimeStamp.config.ping.regex.tooltip": "Ping if a chat line contains this Regex",
+  "chatTimeStamp.config.ping.bg.tooltip": "Line background color",
+  "chatTimeStamp.config.ping.sound.tooltip": "Sound to be played on ping"
 }

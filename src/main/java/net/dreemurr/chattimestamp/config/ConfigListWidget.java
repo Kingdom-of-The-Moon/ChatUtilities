@@ -9,7 +9,6 @@ import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.ElementListWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.option.KeyBinding;
-import net.minecraft.client.util.InputUtil;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
@@ -33,6 +32,7 @@ public class ConfigListWidget extends ElementListWidget<ConfigListWidget.Entry> 
     public static final Predicate<String> ANY = s -> true;
     public static final Predicate<String> INT = s -> s.matches("^[\\-+]?[0-9]*$");
     public static final Predicate<String> FLOAT = s -> s.matches("[\\-+]?[0-9]*(\\.[0-9]+)?") || s.endsWith(".") || s.isEmpty();
+    public static final Predicate<String> HEX_COLOR = s -> s.matches("^[#]?[0-9a-fA-F]{0,6}$");
 
     public ConfigListWidget(ConfigScreen parent, MinecraftClient client) {
         super(client, parent.width + 45, parent.height, 43, parent.height - 32, 20);
@@ -52,6 +52,14 @@ public class ConfigListWidget extends ElementListWidget<ConfigListWidget.Entry> 
 
         //entries
         this.addEntry(new BooleanEntry(new TranslatableText("chatTimeStamp.config.spam.enable"), new TranslatableText("chatTimeStamp.config.spam.enable.tooltip"), Config.entries.get("enableAntiSpam")));
+
+        //category title
+        this.addEntry(new CategoryEntry(new TranslatableText("chatTimeStamp.config.ping")));
+
+        //entries
+        this.addEntry(new InputEntry(new TranslatableText("chatTimeStamp.config.ping.regex"), new TranslatableText("chatTimeStamp.config.ping.regex.tooltip"), Config.entries.get("pingRegex"), ANY));
+        this.addEntry(new InputEntry(new TranslatableText("chatTimeStamp.config.ping.bg"), new TranslatableText("chatTimeStamp.config.ping.bg.tooltip"), Config.entries.get("pingBgColor"), HEX_COLOR));
+        this.addEntry(new InputEntry(new TranslatableText("chatTimeStamp.config.ping.sound"), new TranslatableText("chatTimeStamp.config.ping.sound.tooltip"), Config.entries.get("pingSoundId"), ANY));
     }
 
     @Override
@@ -67,8 +75,10 @@ public class ConfigListWidget extends ElementListWidget<ConfigListWidget.Entry> 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         this.children().forEach(entry -> {
-            if (entry instanceof InputEntry) {
-                ((InputEntry) entry).field.setTextFieldFocused(((InputEntry) entry).field.isMouseOver(mouseX, mouseY));
+            if (entry instanceof InputEntry inputEntry) {
+                inputEntry.field.setTextFieldFocused(inputEntry.field.isMouseOver(mouseX, mouseY));
+                if (inputEntry.field.isFocused())
+                    inputEntry.field.setSelectionEnd(0);
             }
         });
         return super.mouseClicked(mouseX, mouseY, button);
@@ -288,6 +298,7 @@ public class ConfigListWidget extends ElementListWidget<ConfigListWidget.Entry> 
 
             //field
             this.field = new TextFieldWidget(ConfigListWidget.this.client.textRenderer, 0, 0, 70, 16, new LiteralText(config.configValue + ""));
+            this.field.setMaxLength(128);
             this.field.setChangedListener((fieldText) -> config.configValue = fieldText);
             this.field.setText(config.configValue + "");
             this.field.setTextPredicate(validator);
@@ -312,8 +323,25 @@ public class ConfigListWidget extends ElementListWidget<ConfigListWidget.Entry> 
             this.reset.render(matrices, mouseX, mouseY, tickDelta);
 
             //text field
-            this.field.x = x + 167;
             this.field.y = y + 2;
+
+            //focused size
+            if (this.field.isFocused()) {
+                this.field.setWidth(70 + 167);
+                this.field.x = x;
+            } else {
+                //reset size
+                this.field.setWidth(70);
+                this.field.x = x + 167;
+
+                //render overlay text
+                if (isMouseOver(mouseX, mouseY) && mouseX < x + 165) {
+                    matrices.push();
+                    matrices.translate(0, 0, 599);
+                    parent.renderTooltip(matrices, this.tooltip, mouseX, mouseY);
+                    matrices.pop();
+                }
+            }
 
             //if setting is changed
             if (!this.config.configValue.equals(this.initValue + ""))
@@ -327,14 +355,6 @@ public class ConfigListWidget extends ElementListWidget<ConfigListWidget.Entry> 
                 this.field.setEditableColor(Formatting.WHITE.getColorValue());
 
             this.field.render(matrices, mouseX, mouseY, tickDelta);
-
-            //overlay text
-            if (isMouseOver(mouseX, mouseY) && mouseX < x + 165) {
-                matrices.push();
-                matrices.translate(0, 0, 599);
-                parent.renderTooltip(matrices, this.tooltip, mouseX, mouseY);
-                matrices.pop();
-            }
         }
 
         @Override
