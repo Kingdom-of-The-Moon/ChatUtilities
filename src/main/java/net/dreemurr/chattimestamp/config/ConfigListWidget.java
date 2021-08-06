@@ -34,6 +34,9 @@ public class ConfigListWidget extends ElementListWidget<ConfigListWidget.Entry> 
     public static final Predicate<String> FLOAT = s -> s.matches("[\\-+]?[0-9]*(\\.[0-9]+)?") || s.endsWith(".") || s.isEmpty();
     public static final Predicate<String> HEX_COLOR = s -> s.matches("^[#]?[0-9a-fA-F]{0,6}$");
 
+    //accent color
+    public static final Formatting ACCENT_COLOR = Formatting.LIGHT_PURPLE;
+
     public ConfigListWidget(ConfigScreen parent, MinecraftClient client) {
         super(client, parent.width + 45, parent.height, 43, parent.height - 32, 20);
         this.parent = parent;
@@ -162,7 +165,7 @@ public class ConfigListWidget extends ElementListWidget<ConfigListWidget.Entry> 
 
             //if setting is changed
             if (this.config.configValue != this.initValue)
-                this.toggle.setMessage(this.toggle.getMessage().shallowCopy().formatted(Formatting.AQUA));
+                this.toggle.setMessage(this.toggle.getMessage().shallowCopy().formatted(ACCENT_COLOR));
 
             this.toggle.render(matrices, mouseX, mouseY, tickDelta);
 
@@ -243,7 +246,7 @@ public class ConfigListWidget extends ElementListWidget<ConfigListWidget.Entry> 
 
             //if setting is changed
             if (this.config.configValue != this.initValue)
-                this.toggle.setMessage(this.toggle.getMessage().shallowCopy().formatted(Formatting.AQUA));
+                this.toggle.setMessage(this.toggle.getMessage().shallowCopy().formatted(ACCENT_COLOR));
 
             this.toggle.render(matrices, mouseX, mouseY, tickDelta);
 
@@ -347,7 +350,7 @@ public class ConfigListWidget extends ElementListWidget<ConfigListWidget.Entry> 
             if (!this.config.configValue.equals(this.initValue + ""))
                 try {
                     this.config.defaultValue.getClass().getConstructor(new Class[] {String.class}).newInstance(this.config.configValue);
-                    this.field.setEditableColor(Formatting.AQUA.getColorValue());
+                    this.field.setEditableColor(ACCENT_COLOR.getColorValue());
                 } catch (Exception e) {
                     this.field.setEditableColor(Formatting.RED.getColorValue());
                 }
@@ -433,7 +436,7 @@ public class ConfigListWidget extends ElementListWidget<ConfigListWidget.Entry> 
             this.toggle.setMessage(this.binding.getBoundKeyLocalizedText());
 
             if (focusedBinding == this.binding) {
-                this.toggle.setMessage((new LiteralText("> ")).append(this.toggle.getMessage().shallowCopy().formatted(Formatting.AQUA)).append(" <").formatted(Formatting.AQUA));
+                this.toggle.setMessage((new LiteralText("> ")).append(this.toggle.getMessage().shallowCopy().formatted(ACCENT_COLOR)).append(" <").formatted(ACCENT_COLOR));
             }
             else if (!this.binding.isUnbound()) {
                 for (KeyBinding key : MinecraftClient.getInstance().options.keysAll) {

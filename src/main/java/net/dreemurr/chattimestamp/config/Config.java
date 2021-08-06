@@ -1,6 +1,5 @@
 package net.dreemurr.chattimestamp.config;
 
-import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -75,8 +74,7 @@ public class Config {
                     config.addProperty(entry.getKey(), String.valueOf(entry.getValue().value));
             }
 
-            Gson gson = new GsonBuilder().setPrettyPrinting().create();
-            String jsonString = gson.toJson(config);
+            String jsonString = new GsonBuilder().setPrettyPrinting().create().toJson(config);
 
             FileWriter fileWriter = new FileWriter(file);
             fileWriter.write(jsonString);
