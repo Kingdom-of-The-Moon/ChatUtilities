@@ -1,7 +1,7 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "net.dreemurr.chattimestamp.mixin",
+  "package": "org.moon.chatutilities.mixin",
   "compatibilityLevel": "JAVA_16",
   "client": [
     "ChatHudMixin",

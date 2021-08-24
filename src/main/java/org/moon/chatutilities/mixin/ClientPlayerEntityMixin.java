@@ -1,4 +1,4 @@
-package net.dreemurr.chattimestamp.mixin;
+package org.moon.chatutilities.mixin;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ChatScreen;

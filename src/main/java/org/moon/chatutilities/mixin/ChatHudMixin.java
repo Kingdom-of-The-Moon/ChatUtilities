@@ -1,7 +1,8 @@
-package net.dreemurr.chattimestamp.mixin;
+package org.moon.chatutilities.mixin;
 
-import net.dreemurr.chattimestamp.ChatTimeStamp;
-import net.dreemurr.chattimestamp.config.Config;
+import com.mojang.blaze3d.systems.RenderSystem;
+import org.moon.chatutilities.ChatUtilities;
+import org.moon.chatutilities.config.Config;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.hud.ChatHud;
@@ -12,6 +13,8 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.*;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.MathHelper;
+import org.moon.chatutilities.data.ImageCache;
+import org.moon.chatutilities.data.ImageUtils;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -24,6 +27,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.time.LocalTime;
 import java.util.Deque;
 import java.util.List;
+
+import static net.minecraft.client.gui.DrawableHelper.*;
 
 import static net.minecraft.client.gui.DrawableHelper.fill;
 
@@ -42,75 +47,30 @@ public abstract class ChatHudMixin {
 
     @Inject(at = @At("HEAD"), method = "addMessage(Lnet/minecraft/text/Text;)V", cancellable = true)
     public void addMessage(Text message, CallbackInfo ci) {
-        /////////////
-        //anti spam//
-        /////////////
+        boolean cancel = cut$onAddMessage(message);
 
-        if ((boolean) Config.entries.get("enableAntiSpam").value && messageQueue.size() >= queueSize && ctt$antiSpam(message, false)) {
-            ci.cancel();
-            return;
+        String imageURL = ImageUtils.getImageURL(message.getString());
+        boolean hasImage = imageURL != null;
+        if (hasImage) {
+            //String a = message.shallowCopy().getString().replaceAll(ImageUtils.MATCH_URL.pattern(), "<Image>");
+            LiteralText newMessage = new LiteralText("");
+            message.getSiblings().forEach((text -> {
+                if (text.getString().matches(ImageUtils.MATCH_URL.pattern())) {
+                    text = new LiteralText(text.copy().getString().replace(imageURL, "<Image>"));
+                }
+                newMessage.append(text);
+            }));
+
+            this.addMessage(newMessage, 0);
         }
 
-        /////////////
-        //timestamp//
-        /////////////
-
-        //do nothing if clock is disabled
-        if (!(boolean) Config.entries.get("enableClock").value)
-            return;
-
-        //get current time
-        LocalTime timeNow = LocalTime.now();
-
-        //format time
-        int hour = timeNow.getHour();
-        int minute = timeNow.getMinute();
-        int second = timeNow.getSecond();
-
-        //12h
-        if ((boolean) Config.entries.get("twelveHour").value) {
-            hour -= hour >= 13 ? 12 : 0;
-        }
-
-        //define if should send time message
-        boolean newTime =
-                (boolean) Config.entries.get("onMessage").value ||
-                ((boolean) Config.entries.get("showSeconds").value && second != ChatTimeStamp.lastSecond) ||
-                minute != ChatTimeStamp.lastMinute ||
-                hour != ChatTimeStamp.lastHour ||
-                messages.isEmpty();
-
-        //add time message
-        if (newTime) {
-            //save current time
-            ChatTimeStamp.lastHour = hour;
-            ChatTimeStamp.lastMinute = minute;
-            ChatTimeStamp.lastSecond = second;
-
-            //create time message
-            MutableText time = new LiteralText("[" + String.format("%02d", hour) + ":" + String.format("%02d", minute)).formatted(Formatting.GRAY);
-
-            //add seconds if enabled
-            if ((boolean) Config.entries.get("showSeconds").value)
-                time.append(new LiteralText(":" + String.format("%02d", second)));
-
-            //close time text
-            time.append("] ");
-
-            //add message
-            if (!(boolean) Config.entries.get("onMessage").value) {
-                this.addMessage(new LiteralText("").append(ChatTimeStamp.style).append(" ").append(time).append(ChatTimeStamp.style), 0);
-            } else {
-                this.addMessage(new LiteralText("").append(time.formatted(Formatting.DARK_GRAY, Formatting.ITALIC)).append(message), 0);
-                ci.cancel();
-            }
-        }
+        if (cancel || hasImage) ci.cancel();
     }
 
     @Inject(at = @At("HEAD"), method = "queueMessage", cancellable = true)
     public void queueMessage(Text message, CallbackInfo ci) {
         //anti spam
-        if ((boolean) Config.entries.get("enableAntiSpam").value && ctt$antiSpam(message, !this.messageQueue.isEmpty()))
+        if ((boolean) Config.entries.get("enableAntiSpam").value && cut$antiSpam(message, !this.messageQueue.isEmpty()))
             ci.cancel();
 
         //save size
@@ -120,8 +80,8 @@ public abstract class ChatHudMixin {
     @Inject(at = @At("HEAD"), method = "addMessage(Lnet/minecraft/text/Text;I)V")
     public void addMessageHead(Text message, int messageId, CallbackInfo ci) {
         //play sound... if valid
-        if (ChatTimeStamp.pingRegex != null && ChatTimeStamp.pingRegex.matcher(message.getString()).find() && ChatTimeStamp.soundEvent != null)
-            MinecraftClient.getInstance().getSoundManager().play(PositionedSoundInstance.master(ChatTimeStamp.soundEvent, 1));
+        if (ChatUtilities.pingRegex != null && ChatUtilities.pingRegex.matcher(message.getString()).find() && ChatUtilities.soundEvent != null)
+            MinecraftClient.getInstance().getSoundManager().play(PositionedSoundInstance.master(ChatUtilities.soundEvent, 1));
     }
 
     //yeet the bg color render
@@ -158,11 +118,11 @@ public abstract class ChatHudMixin {
         int bgColor = this.color;
 
         //bruh
-        ChatTimeStamp.JustGiveMeTheStringVisitor lineString = new ChatTimeStamp.JustGiveMeTheStringVisitor();
+        ChatUtilities.JustGiveMeTheStringVisitor lineString = new ChatUtilities.JustGiveMeTheStringVisitor();
         text.accept(lineString);
 
         //apply bg color
-        if (ChatTimeStamp.pingRegex != null && ChatTimeStamp.pingRegex.matcher(lineString.toString()).find()) {
+        if (ChatUtilities.pingRegex != null && ChatUtilities.pingRegex.matcher(lineString.toString()).find()) {
             String bgColorConfig = (String) Config.entries.get("pingBgColor").value;
             if (bgColorConfig.startsWith("#")) bgColorConfig = bgColorConfig.substring(1);
 
@@ -178,12 +138,27 @@ public abstract class ChatHudMixin {
         return this.client.textRenderer.drawWithShadow(matrices, text, x, y, color);
     }
 
+    //render images in chat
+    @Inject(at = @At("TAIL"), method = "render")
+    private void render(MatrixStack matrices, int tickDelta, CallbackInfo ci) {
+
+        ImageCache.ImageTexture t = ImageCache.getOrLoadImage("https://cdn.discordapp.com/attachments/858501113619677224/878848816206458970/unknown.png");
+        RenderSystem.setShaderTexture(0, t.getGlId());
+
+        int size = 64;
+        int w = (int) (size*t.ratio), h = size;
+
+        RenderSystem.enableBlend();
+        //drawTexture(matrices, 4, -15, 0, 0, 0, w, h, h, w);
+        RenderSystem.disableBlend();
+    }
+
     @Shadow public abstract int getWidth();
     @Shadow public abstract double getChatScale();
     @Shadow protected abstract void addMessage(Text message, int messageId);
 
     //anti spam
-    private boolean ctt$antiSpam(Text message, boolean isQueue) {
+    private boolean cut$antiSpam(Text message, boolean isQueue) {
         //get messages
         String messageString = message.getString();
         Text lastMessage = null;
@@ -244,6 +219,72 @@ public abstract class ChatHudMixin {
         //reset count if not spam
         spam = 1;
 
+        return false;
+    }
+
+    private boolean cut$onAddMessage(Text message) {
+        /////////////
+        //anti spam//
+        /////////////
+
+        if ((boolean) Config.entries.get("enableAntiSpam").value && messageQueue.size() >= queueSize && cut$antiSpam(message, false)) {
+            return true;
+        }
+
+        /////////////
+        //timestamp//
+        /////////////
+
+        //do nothing if clock is disabled
+        if (!(boolean) Config.entries.get("enableClock").value)
+            return true;
+
+        //get current time
+        LocalTime timeNow = LocalTime.now();
+
+        //format time
+        int hour = timeNow.getHour();
+        int minute = timeNow.getMinute();
+        int second = timeNow.getSecond();
+
+        //12h
+        if ((boolean) Config.entries.get("twelveHour").value) {
+            hour -= hour >= 13 ? 12 : 0;
+        }
+
+        //define if should send time message
+        boolean newTime =
+                (boolean) Config.entries.get("onMessage").value ||
+                        ((boolean) Config.entries.get("showSeconds").value && second != ChatUtilities.lastSecond) ||
+                        minute != ChatUtilities.lastMinute ||
+                        hour != ChatUtilities.lastHour ||
+                        messages.isEmpty();
+
+        //add time message
+        if (newTime) {
+            //save current time
+            ChatUtilities.lastHour = hour;
+            ChatUtilities.lastMinute = minute;
+            ChatUtilities.lastSecond = second;
+
+            //create time message
+            MutableText time = new LiteralText("[" + String.format("%02d", hour) + ":" + String.format("%02d", minute)).formatted(Formatting.GRAY);
+
+            //add seconds if enabled
+            if ((boolean) Config.entries.get("showSeconds").value)
+                time.append(new LiteralText(":" + String.format("%02d", second)));
+
+            //close time text
+            time.append("] ");
+
+            //add message
+            if (!(boolean) Config.entries.get("onMessage").value) {
+                this.addMessage(new LiteralText("").append(ChatUtilities.style).append(" ").append(time).append(ChatUtilities.style), 0);
+            } else {
+                this.addMessage(new LiteralText("").append(time.formatted(Formatting.DARK_GRAY, Formatting.ITALIC)).append(message), 0);
+                return true;
+            }
+        }
         return false;
     }
 }

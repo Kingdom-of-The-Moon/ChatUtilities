@@ -1,7 +1,7 @@
-package net.dreemurr.chattimestamp.mixin;
+package org.moon.chatutilities.mixin;
 
-import net.dreemurr.chattimestamp.accessor.MinecraftClientAccess;
-import net.dreemurr.chattimestamp.accessor.SleepingChatScreenAccess;
+import org.moon.chatutilities.accessor.MinecraftClientAccess;
+import org.moon.chatutilities.accessor.SleepingChatScreenAccess;
 import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraft.client.gui.screen.SleepingChatScreen;
 import org.spongepowered.asm.mixin.Mixin;

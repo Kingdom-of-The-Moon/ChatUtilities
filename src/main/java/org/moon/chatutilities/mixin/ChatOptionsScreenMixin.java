@@ -1,6 +1,6 @@
-package net.dreemurr.chattimestamp.mixin;
+package org.moon.chatutilities.mixin;
 
-import net.dreemurr.chattimestamp.config.ConfigScreen;
+import org.moon.chatutilities.config.ConfigScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.option.ChatOptionsScreen;
 import net.minecraft.client.gui.screen.option.NarratorOptionsScreen;
@@ -23,7 +23,7 @@ public class ChatOptionsScreenMixin extends NarratorOptionsScreen {
         this.addDrawableChild(new ButtonWidget(
                 this.width - 105, this.height - 25,
                 100, 20,
-                new TranslatableText("chatTimeStamp.gui.configButton"),
+                new TranslatableText("chatUtilities.gui.configButton"),
                 button -> this.client.setScreen(new ConfigScreen(this))));
 
         super.initFooter();

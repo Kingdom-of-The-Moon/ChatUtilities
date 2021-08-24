@@ -1,12 +1,13 @@
 {
   "schemaVersion": 1,
-  "id": "chattimestamp",
+  "id": "chatutilities",
   "version": "${version}",
 
-  "name": "ChatTimeStamp",
-  "description": "Adds a Time Stamp to the chat messages",
+  "name": "Chat Utilities",
+  "description": "Adds a Time Stamp to the chat messages, and more!",
   "authors": [
-    "Francy-Chan"
+    "Francy-Chan",
+    "omoflop"
   ],
   "contact": {
     "homepage": "https://github.com/Francy-Chan/ChatTimeStamp/",
@@ -15,28 +16,25 @@
   },
 
   "license": "LGPL-2.1",
-  "icon": "assets/chattimestamp/icon.png",
+  "icon": "assets/chatutilities/icon.png",
 
   "environment": "client",
   "entrypoints": {
     "client": [
-      "net.dreemurr.chattimestamp.ChatTimeStamp"
+      "org.moon.chatutilities.ChatUtilities"
     ],
     "modmenu": [
-      "net.dreemurr.chattimestamp.config.ModMenuConfig"
+      "org.moon.chatutilities.config.ModMenuConfig"
     ]
   },
   "mixins": [
-    "chattimestamp.mixins.json"
+    "chatutilities.mixins.json"
   ],
 
   "depends": {
     "fabricloader": ">=0.11.3",
     "minecraft": "1.17.x",
     "java": ">=16"
-  },
-  "suggests": {
-    "another-mod": "*"
   },
   "custom": {}
 }

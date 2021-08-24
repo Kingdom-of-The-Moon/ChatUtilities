@@ -1,4 +1,4 @@
-package net.dreemurr.chattimestamp.config;
+package org.moon.chatutilities.config;
 
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -13,7 +13,7 @@ public class ConfigScreen extends Screen {
     private ConfigListWidget configListWidget;
 
     public ConfigScreen(Screen parentScreen) {
-        super(new TranslatableText("chatTimeStamp.gui.configTitle"));
+        super(new TranslatableText("chatUtilities.gui.configTitle"));
         this.parentScreen = parentScreen;
     }
 

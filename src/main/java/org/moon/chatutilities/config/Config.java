@@ -1,9 +1,9 @@
-package net.dreemurr.chattimestamp.config;
+package org.moon.chatutilities.config;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import net.dreemurr.chattimestamp.ChatTimeStamp;
+import org.moon.chatutilities.ChatUtilities;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
 public class Config {
     public static final Map<String, ConfigEntry> entries = new HashMap<>();
 
-    private static final File file = new File(FabricLoader.getInstance().getConfigDir().resolve("chatTimeStamp.json").toString());
+    private static final File file = new File(FabricLoader.getInstance().getConfigDir().resolve("chatUtilities.json").toString());
 
     public static void initialize() {
         setDefaults();
@@ -52,7 +52,7 @@ public class Config {
                 br.close();
             }
         } catch (Exception e) {
-            ChatTimeStamp.LOGGER.warn("Failed to load config file! Generating a new one...");
+            ChatUtilities.LOGGER.warn("Failed to load config file! Generating a new one...");
             e.printStackTrace();
             setDefaults();
             saveConfig();
@@ -80,7 +80,7 @@ public class Config {
             fileWriter.write(jsonString);
             fileWriter.close();
         } catch (Exception e) {
-            ChatTimeStamp.LOGGER.error("Failed to save config file!");
+            ChatUtilities.LOGGER.error("Failed to save config file!");
             e.printStackTrace();
         }
     }
@@ -88,9 +88,9 @@ public class Config {
     public static void runOnSave() {
         //set sound event
         try {
-            ChatTimeStamp.soundEvent = new SoundEvent(new Identifier((String) Config.entries.get("pingSoundId").value));
+            ChatUtilities.soundEvent = new SoundEvent(new Identifier((String) Config.entries.get("pingSoundId").value));
         } catch (Exception e) {
-            ChatTimeStamp.soundEvent = null;
+            ChatUtilities.soundEvent = null;
         }
 
         //parse hex color
@@ -112,7 +112,7 @@ public class Config {
 
         //compile regex
         String regex = (String) Config.entries.get("pingRegex").value;
-        ChatTimeStamp.pingRegex = regex.equals("") ? null : Pattern.compile(regex, 0);
+        ChatUtilities.pingRegex = regex.equals("") ? null : Pattern.compile(regex, 0);
     }
 
     public static void copyConfig() {
