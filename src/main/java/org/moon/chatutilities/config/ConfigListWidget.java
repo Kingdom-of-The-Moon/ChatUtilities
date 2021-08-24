@@ -63,6 +63,14 @@ public class ConfigListWidget extends ElementListWidget<ConfigListWidget.Entry> 
         this.addEntry(new InputEntry(new TranslatableText("chatUtilities.config.ping.regex"), new TranslatableText("chatTimeStamp.config.ping.regex.tooltip"), Config.entries.get("pingRegex"), ANY));
         this.addEntry(new InputEntry(new TranslatableText("chatUtilities.config.ping.bg"), new TranslatableText("chatTimeStamp.config.ping.bg.tooltip"), Config.entries.get("pingBgColor"), HEX_COLOR));
         this.addEntry(new InputEntry(new TranslatableText("chatUtilities.config.ping.sound"), new TranslatableText("chatTimeStamp.config.ping.sound.tooltip"), Config.entries.get("pingSoundId"), ANY));
+
+        //category title
+        this.addEntry(new CategoryEntry(new TranslatableText("chatUtilities.config.system")));
+
+        //entries
+        this.addEntry(new BooleanEntry(new TranslatableText("chatUtilities.config.system.enable"), new TranslatableText("chatTimeStamp.config.system.enable.tooltip"), Config.entries.get("systemEnabled")));
+        this.addEntry(new BooleanEntry(new TranslatableText("chatUtilities.config.system.seconds"), new TranslatableText("chatTimeStamp.config.system.seconds.tooltip"), Config.entries.get("systemTwelveHour")));
+        this.addEntry(new BooleanEntry(new TranslatableText("chatUtilities.config.system.twelve"), new TranslatableText("chatTimeStamp.config.system.twelve.tooltip"), Config.entries.get("systemShowSeconds")));
     }
 
     @Override

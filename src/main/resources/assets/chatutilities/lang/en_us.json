@@ -22,5 +22,13 @@
   "chatUtilities.config.ping.sound": "Ping Sound",
   "chatUtilities.config.ping.regex.tooltip": "Ping if a chat line contains this Regex",
   "chatUtilities.config.ping.bg.tooltip": "Line background color",
-  "chatUtilities.config.ping.sound.tooltip": "Sound to be played on ping"
+  "chatUtilities.config.ping.sound.tooltip": "Sound to be played on ping",
+
+  "chatUtilities.config.system": "System Clock",
+  "chatUtilities.config.system.seconds": "Include Seconds",
+  "chatUtilities.config.system.twelve": "12h format",
+  "chatUtilities.config.system.enable": "Enable Clock",
+  "chatUtilities.config.system.seconds.tooltip": "Include seconds on the System Clock",
+  "chatUtilities.config.system.twelve.tooltip": "Toggle between 12/24h formatting",
+  "chatUtilities.config.system.enable.tooltip": "Toggle the activation of the System Clock"
 }

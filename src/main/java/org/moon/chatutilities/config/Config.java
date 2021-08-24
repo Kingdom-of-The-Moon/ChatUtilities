@@ -125,14 +125,20 @@ public class Config {
 
     public static void setDefaults() {
         entries.clear();
+        entries.put("enableClock", new ConfigEntry<>(true));
+        entries.put("twelveHour", new ConfigEntry<>(true));
         entries.put("showSeconds", new ConfigEntry<>(false));
         entries.put("onMessage", new ConfigEntry<>(false));
-        entries.put("twelveHour", new ConfigEntry<>(true));
-        entries.put("enableClock", new ConfigEntry<>(true));
+
         entries.put("enableAntiSpam", new ConfigEntry<>(true));
+
         entries.put("pingRegex", new ConfigEntry<>(""));
         entries.put("pingBgColor", new ConfigEntry<>("#ff72b7"));
         entries.put("pingSoundId", new ConfigEntry<>("minecraft:entity.arrow.hit_player"));
+
+        entries.put("systemEnabled", new ConfigEntry<>(true));
+        entries.put("systemTwelveHour", new ConfigEntry<>(true));
+        entries.put("systemShowSeconds", new ConfigEntry<>(true));
     }
 
     public static class ConfigEntry<T> {

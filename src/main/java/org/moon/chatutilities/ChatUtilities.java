@@ -43,8 +43,6 @@ public class ChatUtilities implements ClientModInitializer {
     public static class JustGiveMeTheStringVisitor implements CharacterVisitor {
         StringBuilder sb = new StringBuilder();
 
-        When
-
         @Override
         public boolean accept(int index, Style style, int codePoint) {
             sb.appendCodePoint(codePoint);
