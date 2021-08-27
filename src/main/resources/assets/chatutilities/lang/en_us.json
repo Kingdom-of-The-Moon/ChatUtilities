@@ -1,6 +1,6 @@
 {
-  "chatUtilities.gui.configButton": "ChatTimeStamp",
-  "chatUtilities.gui.configTitle": "ChatTimeStamp config",
+  "chatUtilities.gui.configButton": "ChatUtilities",
+  "chatUtilities.gui.configTitle": "ChatUtilities config",
 
   "chatUtilities.config.time": "Time Messages",
   "chatUtilities.config.time.seconds": "Include Seconds",
