@@ -71,6 +71,7 @@ public class ConfigListWidget extends ElementListWidget<ConfigListWidget.Entry> 
         this.addEntry(new BooleanEntry(new TranslatableText("chatUtilities.config.system.enable"), new TranslatableText("chatUtilities.config.system.enable.tooltip"), Config.entries.get("systemEnabled")));
         this.addEntry(new BooleanEntry(new TranslatableText("chatUtilities.config.system.seconds"), new TranslatableText("chatUtilities.config.system.seconds.tooltip"), Config.entries.get("systemTwelveHour")));
         this.addEntry(new BooleanEntry(new TranslatableText("chatUtilities.config.system.twelve"), new TranslatableText("chatUtilities.config.system.twelve.tooltip"), Config.entries.get("systemShowSeconds")));
+        this.addEntry(new BooleanEntry(new TranslatableText("chatUtilities.config.system.fullscreen"), new TranslatableText("chatUtilities.config.system.fullscreen.tooltip"), Config.entries.get("systemFullscreen")));
     }
 
     @Override

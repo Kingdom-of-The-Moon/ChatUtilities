@@ -25,7 +25,7 @@ public abstract class InGameHudMixin {
 
     @Inject(at = @At("TAIL"), method = "render")
     public void render(MatrixStack matrices, float tickDelta, CallbackInfo ci) {
-        if (this.client.options.hudHidden || !(boolean) Config.entries.get("systemEnabled").value)
+        if (this.client.options.hudHidden || !(boolean) Config.entries.get("systemEnabled").value || (!this.client.getWindow().isFullscreen() && (boolean) Config.entries.get("systemFullscreen").value))
             return;
 
         //get current time

@@ -139,6 +139,7 @@ public class Config {
         entries.put("systemEnabled", new ConfigEntry<>(true));
         entries.put("systemTwelveHour", new ConfigEntry<>(true));
         entries.put("systemShowSeconds", new ConfigEntry<>(true));
+        entries.put("systemFullscreen", new ConfigEntry<>(false));
     }
 
     public static class ConfigEntry<T> {
