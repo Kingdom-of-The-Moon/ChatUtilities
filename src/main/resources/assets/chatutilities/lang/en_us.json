@@ -32,5 +32,8 @@
   "chatUtilities.config.system.seconds.tooltip": "Include seconds on the System Clock",
   "chatUtilities.config.system.twelve.tooltip": "Toggle between 12/24h formatting",
   "chatUtilities.config.system.enable.tooltip": "Toggle the activation of the System Clock",
-  "chatUtilities.config.system.fullscreen.tooltip": "Renders the System Clock ONLY when in fullscreen mode"
+  "chatUtilities.config.system.fullscreen.tooltip": "Renders the System Clock ONLY when in fullscreen mode",
+
+  "chatUtilities.config.image.showImages": "Show Images",
+  "chatUtilities.config.image.showImages.tooltip": "Renders images in the chat"
 }

@@ -65,6 +65,10 @@ public class ConfigListWidget extends ElementListWidget<ConfigListWidget.Entry> 
         this.addEntry(new InputEntry(new TranslatableText("chatUtilities.config.ping.sound"), new TranslatableText("chatUtilities.config.ping.sound.tooltip"), Config.entries.get("pingSoundId"), ANY));
 
         //category title
+        this.addEntry(new CategoryEntry(new TranslatableText("chatUtilities.config.image")));
+        this.addEntry(new InputEntry(new TranslatableText("chatUtilities.config.image.showImages"), new TranslatableText("chatUtilities.config.image.showImages.tooltip"), Config.entries.get("showImages"), ANY));
+
+        //category title
         this.addEntry(new CategoryEntry(new TranslatableText("chatUtilities.config.system")));
 
         //entries

@@ -141,7 +141,7 @@ public class Config {
         entries.put("systemShowSeconds", new ConfigEntry<>(true));
         entries.put("systemFullscreen", new ConfigEntry<>(false));
 
-        entries.put("chatImages", new ConfigEntry<>(true));
+        entries.put("showImages", new ConfigEntry<>(true));
     }
 
     public static class ConfigEntry<T> {
