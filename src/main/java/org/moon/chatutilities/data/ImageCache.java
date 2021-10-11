@@ -12,12 +12,11 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 
-import static org.moon.chatutilities.data.ImageUtils.*;
+import static org.moon.chatutilities.data.ImageUtils.resizeImage;
 
 public class ImageCache {
 

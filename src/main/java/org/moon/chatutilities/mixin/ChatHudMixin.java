@@ -1,8 +1,6 @@
 package org.moon.chatutilities.mixin;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import org.moon.chatutilities.ChatUtilities;
-import org.moon.chatutilities.config.Config;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.hud.ChatHud;
@@ -10,61 +8,107 @@ import net.minecraft.client.gui.hud.ChatHudLine;
 import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.client.util.ChatMessages;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.*;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.MutableText;
+import net.minecraft.text.OrderedText;
+import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.MathHelper;
+import org.moon.chatutilities.ChatUtilities;
+import org.moon.chatutilities.accessor.ChatHudLineAccess;
+import org.moon.chatutilities.config.Config;
+import org.moon.chatutilities.data.ChatRenderContext;
 import org.moon.chatutilities.data.ImageCache;
-import org.moon.chatutilities.data.ImageUtils;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
+import java.util.Stack;
 
-import static net.minecraft.client.gui.DrawableHelper.*;
-
+import static net.minecraft.client.gui.DrawableHelper.drawTexture;
 import static net.minecraft.client.gui.DrawableHelper.fill;
 
 @Mixin(ChatHud.class)
 public abstract class ChatHudMixin {
 
-    private int spam = 1;
-    private int queueSize = 0;
+    @Unique private int spam = 1;
+    @Unique private int queueSize = 0;
 
-    private int x1, y1, x2, y2, color;
+    @Unique private int x1;
+    @Unique private int y1;
+    @Unique private int x2;
+    @Unique private int y2;
+    @Unique private int color;
+
+    @Unique private List<String> imageLinks;
+    @Unique private int inARow = 0;
+    @Unique private Stack<ChatRenderContext> renderContextStack = new Stack<>();
+    @Unique private TextRenderer textRenderer;
 
     @Shadow @Final private MinecraftClient client;
     @Shadow @Final private Deque<Text> messageQueue;
     @Shadow @Final private List<ChatHudLine<Text>> messages;
     @Shadow @Final private List<ChatHudLine<OrderedText>> visibleMessages;
 
+
+    @Inject(at = @At("TAIL"), method = "addMessage(Lnet/minecraft/text/Text;IIZ)V")
+    public void addMessage(Text message, int messageId, int timestamp, boolean refresh, CallbackInfo ci) {
+
+    }
+
+    @Redirect(at = @At(value = "INVOKE", target = "Ljava/util/List;add(ILjava/lang/Object;)V"), method = "addMessage(Lnet/minecraft/text/Text;IIZ)V")
+    private void listAddStealer(List instance, int i, Object e) {
+        if (e instanceof ChatHudLine chatHudLine && chatHudLine.getText() instanceof OrderedText && imageLinks != null) {
+            inARow++;
+            if (inARow >= 3) {
+                ((ChatHudLineAccess) chatHudLine).setImageLinks(imageLinks);
+                imageLinks = null;
+                inARow = 0;
+            }
+        }
+
+        instance.add(i, e);
+    }
+
     @Inject(at = @At("HEAD"), method = "addMessage(Lnet/minecraft/text/Text;)V", cancellable = true)
     public void addMessage(Text message, CallbackInfo ci) {
         boolean cancel = cut$onAddMessage(message);
 
-        String imageURL = ImageUtils.getImageURL(message.getString());
-        boolean hasImage = imageURL != null;
-        if (hasImage) {
-            //String a = message.shallowCopy().getString().replaceAll(ImageUtils.MATCH_URL.pattern(), "<Image>");
-            LiteralText newMessage = new LiteralText("");
-            message.getSiblings().forEach((text -> {
-                if (text.getString().matches(ImageUtils.MATCH_URL.pattern())) {
-                    text = new LiteralText(text.copy().getString().replace(imageURL, "<Image>"));
-                }
-                newMessage.append(text);
-            }));
+        if ((boolean) Config.entries.get("showImages").value) {
+            List<String> links = cut$imageLinks(message);
+            boolean hasImage = links.size() > 0;
+            if (hasImage) {
+                LiteralText newMessage = new LiteralText("");
 
-            this.addMessage(newMessage, 0);
+                for(Text entry : message.getWithStyle(message.getStyle())) {
+                    String str = entry.getString();
+
+                    for(String link : links) {
+                        str = str.replace(link, "§8§i<image>§r");
+                    }
+
+                    newMessage.append(new LiteralText(str));
+                }
+
+                imageLinks = links;
+
+                this.addMessage(newMessage.append("\n".repeat(links.size()*4)), 0);
+                ci.cancel();
+            }
         }
 
-        if (cancel || hasImage) ci.cancel();
+        if (cancel) ci.cancel();
     }
 
     @Inject(at = @At("HEAD"), method = "queueMessage", cancellable = true)
@@ -138,19 +182,67 @@ public abstract class ChatHudMixin {
         return this.client.textRenderer.drawWithShadow(matrices, text, x, y, color);
     }
 
-    //render images in chat
+    @Inject(
+            method = "render",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/font/TextRenderer;drawWithShadow(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/text/OrderedText;FFI)I",
+                    by = 1
+            ),
+            locals = LocalCapture.CAPTURE_FAILHARD
+    )
+    private void postRenderDraw(MatrixStack matrices, int tickDelta, CallbackInfo ci, int i, int j, boolean bl, float f, int k, double d, double e, double g, double h, int l, int m, ChatHudLine chatHudLine, double o, int p, int q, int r, double s, TextRenderer var27, MatrixStack var28, OrderedText var29, float var30, float var31, int var32) {
+        if ((boolean) Config.entries.get("showImages").value) {
+            List<String> links = ((ChatHudLineAccess)chatHudLine).getImageLinks();
+            if (links != null)
+                renderContextStack.push(new ChatRenderContext(chatHudLine, links, s, h, (int)(255.0D * o * d)));
+        }
+    }
+
     @Inject(at = @At("TAIL"), method = "render")
-    private void render(MatrixStack matrices, int tickDelta, CallbackInfo ci) {
+    private void renderImages(MatrixStack matrices, int tickDelta, CallbackInfo ci) {
 
-        ImageCache.ImageTexture t = ImageCache.getOrLoadImage("https://cdn.discordapp.com/attachments/858501113619677224/878848816206458970/unknown.png");
-        RenderSystem.setShaderTexture(0, t.getGlId());
+        while (!renderContextStack.isEmpty()) {
+            RenderSystem.enableBlend();
+            ChatRenderContext ctx = renderContextStack.pop();
+            int i = 0;
+            for (String curLink : ctx.links()) {
+                ImageCache.ImageTexture tex = ImageCache.getOrLoadImage(curLink);
+                RenderSystem.setShaderTexture(0, tex.getGlId());
+                RenderSystem.setShaderColor(1,1,1,ctx.aa()/255f);
 
-        int size = 64;
-        int w = (int) (size*t.ratio), h = size;
+                int size = 32;
+                int width = (int) (size * tex.ratio);
 
-        RenderSystem.enableBlend();
-        //drawTexture(matrices, 4, -15, 0, 0, 0, w, h, h, w);
-        RenderSystem.disableBlend();
+                matrices.push();
+                matrices.translate(0,0,500f);
+                int x = 4;
+                int y = (int)(ctx.s() + ctx.h()) + (size+4)*i;
+                drawTexture(matrices, x, y, 0, 0, 0, width, size, size, width);
+                matrices.pop();
+
+                /** @TODO Make overlay and click link work
+                 * if (client.mouse.getX() >= x && client.mouse.getX() <= x + width && client.mouse.getY() >= y && client.mouse.getY() <= y + size) {
+                 *                     if (client.mouse.wasLeftButtonClicked()) {
+                 *                         if (this.client.options.chatLinksPrompt) {
+                 *                             this.client.setScreen(new ConfirmChatLinkScreen(b -> {
+                 *                                 if (b) Util.getOperatingSystem().open(URI.create(curLink));
+                 *                             }, curLink, false));
+                 *                         } else {
+                 *                             Util.getOperatingSystem().open(URI.create(curLink));
+                 *                         }
+                 *                     }
+                 *
+                 *                     drawStringWithShadow(matrices, textRenderer, curLink, 0, 0, 0xFFFFFF);
+                 *                 }
+                 */
+
+
+                i++;
+            }
+            RenderSystem.disableBlend();
+        }
+
     }
 
     @Shadow public abstract int getWidth();
@@ -222,7 +314,35 @@ public abstract class ChatHudMixin {
         return false;
     }
 
+    private List<String> cut$imageLinks(Text message) {
+        String[] tokens = message.getString().split(" ");
+
+        ArrayList<String> urls = new ArrayList<>();
+        for (String s : tokens) {
+            if (s.matches("^(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]")) {
+                urls.add(s);
+            }
+        }
+
+        return urls;
+    }
+
+    private Text cut$removeText(Text message, List<String> toRemove) {
+
+        String str = message.getString();
+        toRemove.forEach(s -> str.replace(s, ""));
+
+        MutableText newMessage = Text.of(str).copy();
+
+        message.getSiblings().forEach(sibling -> {
+            newMessage.append(cut$removeText(sibling, toRemove));
+        });
+
+        return newMessage;
+    }
+
     private boolean cut$onAddMessage(Text message) {
+
         /////////////
         //anti spam//
         /////////////
@@ -279,7 +399,7 @@ public abstract class ChatHudMixin {
 
             //add message
             if (!(boolean) Config.entries.get("onMessage").value) {
-                this.addMessage(new LiteralText("").append(ChatUtilities.style).append(" ").append(time).append(ChatUtilities.style), 0);
+                this.addMessage(new LiteralText("").append(ChatUtilities.STYLE).append(" ").append(time).append(ChatUtilities.STYLE), 0);
             } else {
                 this.addMessage(new LiteralText("").append(time.formatted(Formatting.DARK_GRAY, Formatting.ITALIC)).append(message), 0);
                 return true;

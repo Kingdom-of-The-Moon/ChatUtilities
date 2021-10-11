@@ -8,6 +8,7 @@
     "ChatOptionsScreenMixin",
     "ClientPlayerEntityMixin",
     "InGameHudMixin",
+    "ChatHudLineMixin",
     "MinecraftClientMixin",
     "SleepingChatScreenMixin"
   ],

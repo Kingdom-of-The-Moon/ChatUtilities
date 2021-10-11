@@ -1,7 +1,6 @@
 package org.moon.chatutilities.data;
 
 import java.awt.image.BufferedImage;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ImageUtils {

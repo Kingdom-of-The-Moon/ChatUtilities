@@ -140,6 +140,8 @@ public class Config {
         entries.put("systemTwelveHour", new ConfigEntry<>(true));
         entries.put("systemShowSeconds", new ConfigEntry<>(true));
         entries.put("systemFullscreen", new ConfigEntry<>(false));
+
+        entries.put("chatImages", new ConfigEntry<>(true));
     }
 
     public static class ConfigEntry<T> {
