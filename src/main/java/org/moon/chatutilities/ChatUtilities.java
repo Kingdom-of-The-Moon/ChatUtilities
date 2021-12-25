@@ -1,16 +1,14 @@
 package org.moon.chatutilities;
 
 import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.TextureManager;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.text.*;
 import net.minecraft.util.Formatting;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.moon.chatutilities.config.Config;
+import org.moon.chatutilities.config.ConfigManager;
 
 import java.util.regex.Pattern;
 
@@ -27,7 +25,7 @@ public class ChatUtilities implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         //init config
-        Config.initialize();
+        ConfigManager.initialize();
     }
 
     private static TextureManager textureManager;

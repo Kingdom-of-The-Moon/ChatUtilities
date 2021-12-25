@@ -1,39 +1,49 @@
 {
-  "chatUtilities.gui.configButton": "ChatUtilities",
-  "chatUtilities.gui.configTitle": "ChatUtilities config",
+  "chatUtilities.gui.configbutton": "ChatUtilities",
+  "chatUtilities.gui.config.title": "ChatUtilities config",
 
-  "chatUtilities.config.time": "Time Messages",
-  "chatUtilities.config.time.seconds": "Include Seconds",
-  "chatUtilities.config.time.message": "Time on every message",
-  "chatUtilities.config.time.twelve": "12h format",
-  "chatUtilities.config.time.enable": "Enable Clock",
-  "chatUtilities.config.time.seconds.tooltip": "Include seconds on the time message",
-  "chatUtilities.config.time.message.tooltip": "Append the time on every message instead of once per time change",
-  "chatUtilities.config.time.twelve.tooltip": "Toggle between 12/24h formatting",
-  "chatUtilities.config.time.enable.tooltip": "Toggle the activation of the Clock",
+  "chatUtilities.config.clock": "Messages Clock",
+  "chatUtilities.config.antispam": "Anti Spam",
+  "chatUtilities.config.pings": "Messages Pings",
+  "chatUtilities.config.systemclock": "System Clock",
+  "chatUtilities.config.images": "Images",
 
-  "chatUtilities.config.spam": "Anti Spam",
-  "chatUtilities.config.spam.enable": "Enable Anti Spam",
-  "chatUtilities.config.spam.enable.tooltip": "Toggle the activation of Anti Spam",
+  "chatUtilities.config.has_clock": "Enable Clock",
+  "chatUtilities.config.has_clock.tooltip": "Toggle the activation of the Clock",
 
-  "chatUtilities.config.ping": "Message Pings",
-  "chatUtilities.config.ping.regex": "Matching Regex",
-  "chatUtilities.config.ping.bg": "Background Color",
-  "chatUtilities.config.ping.sound": "Ping Sound",
-  "chatUtilities.config.ping.regex.tooltip": "Ping if a chat line contains this Regex",
-  "chatUtilities.config.ping.bg.tooltip": "Line background color",
-  "chatUtilities.config.ping.sound.tooltip": "Sound to be played on ping",
+  "chatUtilities.config.twelve_hours": "12h format",
+  "chatUtilities.config.twelve_hours.tooltip": "Toggle between 12/24h formatting",
 
-  "chatUtilities.config.system": "System Clock",
-  "chatUtilities.config.system.seconds": "Include Seconds",
-  "chatUtilities.config.system.twelve": "12h format",
-  "chatUtilities.config.system.enable": "Enable Clock",
-  "chatUtilities.config.system.fullscreen": "Fullscreen Only",
-  "chatUtilities.config.system.seconds.tooltip": "Include seconds on the System Clock",
-  "chatUtilities.config.system.twelve.tooltip": "Toggle between 12/24h formatting",
-  "chatUtilities.config.system.enable.tooltip": "Toggle the activation of the System Clock",
-  "chatUtilities.config.system.fullscreen.tooltip": "Renders the System Clock ONLY when in fullscreen mode",
+  "chatUtilities.config.show_seconds": "Include Seconds",
+  "chatUtilities.config.show_seconds.tooltip": "Include seconds on the time message",
 
-  "chatUtilities.config.image.showImages": "Show Images",
-  "chatUtilities.config.image.showImages.tooltip": "Renders images in the chat"
+  "chatUtilities.config.clock_on_message": "Time on every message",
+  "chatUtilities.config.clock_on_message.tooltip": "Append the time on every message instead of once per time change",
+
+  "chatUtilities.config.has_anti_spam": "Enable Anti Spam",
+  "chatUtilities.config.has_anti_spam.tooltip": "Toggle the activation of Anti Spam",
+
+  "chatUtilities.config.ping_regex": "Matching Regex",
+  "chatUtilities.config.ping_regex.tooltip": "Ping if a chat line contains this Regex",
+
+  "chatUtilities.config.ping_bg_colour": "Background Color",
+  "chatUtilities.config.ping_bg_colour.tooltip": "Line background color",
+
+  "chatUtilities.config.ping_sound": "Ping Sound",
+  "chatUtilities.config.ping_sound.tooltip": "Sound to be played on ping",
+
+  "chatUtilities.config.has_system_clock": "Enable Clock",
+  "chatUtilities.config.has_system_clock.tooltip": "Toggle the activation of the System Clock",
+
+  "chatUtilities.config.sys_twelve_hours": "12h format",
+  "chatUtilities.config.sys_twelve_hours.tooltip": "Toggle between 12/24h formatting",
+
+  "chatUtilities.config.sys_show_seconds": "Include Seconds",
+  "chatUtilities.config.sys_show_seconds.tooltip": "Include seconds on the System Clock",
+
+  "chatUtilities.config.sys_full_screen_only": "Fullscreen Only",
+  "chatUtilities.config.sys_full_screen_only.tooltip": "Renders the System Clock ONLY when in fullscreen mode",
+
+  "chatUtilities.config.show_images": "Show Images",
+  "chatUtilities.config.show_images.tooltip": "Renders images in the chat"
 }

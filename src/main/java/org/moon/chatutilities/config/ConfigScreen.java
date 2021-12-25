@@ -6,6 +6,8 @@ import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.TranslatableText;
+import org.moon.chatutilities.config.ConfigManager.Config;
+import org.moon.chatutilities.config.widgets.ConfigListWidget;
 
 public class ConfigScreen extends Screen {
 
@@ -13,7 +15,7 @@ public class ConfigScreen extends Screen {
     private ConfigListWidget configListWidget;
 
     public ConfigScreen(Screen parentScreen) {
-        super(new TranslatableText("chatUtilities.gui.configTitle"));
+        super(new TranslatableText(ConfigManager.MOD_NAME + ".gui.config.title"));
         this.parentScreen = parentScreen;
     }
 
@@ -22,24 +24,27 @@ public class ConfigScreen extends Screen {
         super.init();
 
         this.addDrawableChild(new ButtonWidget(this.width / 2 - 154, this.height - 29, 150, 20, new TranslatableText("gui.cancel"), (buttonWidgetx) -> {
-            Config.discardConfig();
+            ConfigManager.discardConfig();
             this.client.setScreen(parentScreen);
         }));
 
         this.addDrawableChild(new ButtonWidget(this.width / 2 + 4, this.height - 29, 150, 20, new TranslatableText("gui.done"), (buttonWidgetx) -> {
-            Config.copyConfig();
-            Config.saveConfig();
+            ConfigManager.applyConfig();
+            ConfigManager.saveConfig();
             this.client.setScreen(parentScreen);
         }));
 
         this.configListWidget = new ConfigListWidget(this, this.client);
         this.addSelectableChild(this.configListWidget);
+
+        //generate configs...
+        configListWidget.addEntries(Config.values());
     }
 
     @Override
     public void onClose() {
-        Config.copyConfig();
-        Config.saveConfig();
+        ConfigManager.applyConfig();
+        ConfigManager.saveConfig();
         this.client.setScreen(parentScreen);
     }
 
@@ -56,6 +61,17 @@ public class ConfigScreen extends Screen {
 
         //screen title
         drawCenteredText(matrices, this.textRenderer, this.title, this.width / 2, 12, 16777215);
+
+        //render tooltip
+        for (ConfigListWidget.Entry entry : this.configListWidget.children()) {
+            if (entry.tooltip != null && mouseX < this.width / 2 && entry.isMouseOver(mouseX, mouseY)) {
+                matrices.push();
+                matrices.translate(0, 0, 599);
+                this.renderTooltip(matrices, entry.tooltip, mouseX, mouseY);
+                matrices.pop();
+                break;
+            }
+        }
     }
 
     @Override

@@ -23,7 +23,7 @@ public class ChatOptionsScreenMixin extends NarratorOptionsScreen {
         this.addDrawableChild(new ButtonWidget(
                 this.width - 105, this.height - 25,
                 100, 20,
-                new TranslatableText("chatUtilities.gui.configButton"),
+                new TranslatableText("chatUtilities.gui.configbutton"),
                 button -> this.client.setScreen(new ConfigScreen(this))));
 
         super.initFooter();

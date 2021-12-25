@@ -6,7 +6,7 @@ import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.hud.InGameHud;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
-import org.moon.chatutilities.config.Config;
+import org.moon.chatutilities.config.ConfigManager.Config;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -25,7 +25,7 @@ public abstract class InGameHudMixin {
 
     @Inject(at = @At("TAIL"), method = "render")
     public void render(MatrixStack matrices, float tickDelta, CallbackInfo ci) {
-        if (this.client.options.hudHidden || !(boolean) Config.entries.get("systemEnabled").value || (!this.client.getWindow().isFullscreen() && (boolean) Config.entries.get("systemFullscreen").value))
+        if (this.client.options.hudHidden || !(boolean) Config.HAS_SYSTEM_CLOCK.value || (!this.client.getWindow().isFullscreen() && (boolean) Config.SYS_FULL_SCREEN_ONLY.value))
             return;
 
         //get current time
@@ -37,13 +37,13 @@ public abstract class InGameHudMixin {
         int second = timeNow.getSecond();
 
         //12h
-        if ((boolean) Config.entries.get("systemTwelveHour").value)
+        if ((boolean) Config.SYS_TWELVE_HOURS.value)
             hour -= hour >= 13 ? 12 : 0;
 
         LiteralText time = new LiteralText(String.format("%02d", hour) + ":" + String.format("%02d", minute));
 
         //add seconds if enabled
-        if ((boolean) Config.entries.get("systemShowSeconds").value)
+        if ((boolean) Config.SYS_SHOW_SECONDS.value)
             time.append(new LiteralText(":" + String.format("%02d", second)));
 
         int timeSize = this.getTextRenderer().getWidth(time);

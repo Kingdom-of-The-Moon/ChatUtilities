@@ -16,7 +16,7 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.math.MathHelper;
 import org.moon.chatutilities.ChatUtilities;
 import org.moon.chatutilities.accessor.ChatHudLineAccess;
-import org.moon.chatutilities.config.Config;
+import org.moon.chatutilities.config.ConfigManager.Config;
 import org.moon.chatutilities.data.ChatRenderContext;
 import org.moon.chatutilities.data.ImageCache;
 import org.spongepowered.asm.mixin.Final;
@@ -85,7 +85,7 @@ public abstract class ChatHudMixin {
     public void addMessage(Text message, CallbackInfo ci) {
         boolean cancel = cut$onAddMessage(message);
 
-        if ((boolean) Config.entries.get("showImages").value) {
+        if ((boolean) Config.SHOW_IMAGES.value) {
             List<String> links = cut$imageLinks(message);
             boolean hasImage = links.size() > 0;
             if (hasImage) {
@@ -114,7 +114,7 @@ public abstract class ChatHudMixin {
     @Inject(at = @At("HEAD"), method = "queueMessage", cancellable = true)
     public void queueMessage(Text message, CallbackInfo ci) {
         //anti spam
-        if ((boolean) Config.entries.get("enableAntiSpam").value && cut$antiSpam(message, !this.messageQueue.isEmpty()))
+        if ((boolean) Config.HAS_ANTI_SPAM.value && cut$antiSpam(message, !this.messageQueue.isEmpty()))
             ci.cancel();
 
         //save size
@@ -167,7 +167,7 @@ public abstract class ChatHudMixin {
 
         //apply bg color
         if (ChatUtilities.pingRegex != null && ChatUtilities.pingRegex.matcher(lineString.toString()).find()) {
-            String bgColorConfig = (String) Config.entries.get("pingBgColor").value;
+            String bgColorConfig = (String) Config.PING_BG_COLOUR.value;
             if (bgColorConfig.startsWith("#")) bgColorConfig = bgColorConfig.substring(1);
 
             bgColor += Integer.parseInt(bgColorConfig, 16);
@@ -191,8 +191,8 @@ public abstract class ChatHudMixin {
             ),
             locals = LocalCapture.CAPTURE_FAILHARD
     )
-    private void postRenderDraw(MatrixStack matrices, int tickDelta, CallbackInfo ci, int i, int j, boolean bl, float f, int k, double d, double e, double g, double h, int l, int m, ChatHudLine chatHudLine, double o, int p, int q, int r, double s, TextRenderer var27, MatrixStack var28, OrderedText var29, float var30, float var31, int var32) {
-        if ((boolean) Config.entries.get("showImages").value) {
+    private void postRenderDraw(MatrixStack matrices, int tickDelta, CallbackInfo ci, int i, int j, boolean bl, float f, int k, double d, double e, double g, double h, int l, int m, ChatHudLine<?> chatHudLine, int o, double p, int q, int r, int s, double t) {
+        if ((boolean) Config.SHOW_IMAGES.value) {
             List<String> links = ((ChatHudLineAccess)chatHudLine).getImageLinks();
             if (links != null)
                 renderContextStack.push(new ChatRenderContext(chatHudLine, links, s, h, (int)(255.0D * o * d)));
@@ -221,7 +221,7 @@ public abstract class ChatHudMixin {
                 drawTexture(matrices, x, y, 0, 0, 0, width, size, size, width);
                 matrices.pop();
 
-                /** @TODO Make overlay and click link work
+                /* @TODO Make overlay and click link work
                  * if (client.mouse.getX() >= x && client.mouse.getX() <= x + width && client.mouse.getY() >= y && client.mouse.getY() <= y + size) {
                  *                     if (client.mouse.wasLeftButtonClicked()) {
                  *                         if (this.client.options.chatLinksPrompt) {
@@ -255,7 +255,7 @@ public abstract class ChatHudMixin {
         String messageString = message.getString();
         Text lastMessage = null;
         String[] lastMessageString = {"", ""};
-        boolean hasClock = (boolean) Config.entries.get("enableClock").value && (boolean) Config.entries.get("onMessage").value && !isQueue;
+        boolean hasClock = (boolean) Config.HAS_CLOCK.value && (boolean) Config.CLOCK_ON_MESSAGE.value && !isQueue;
 
         if (isQueue) //get from queue
             lastMessage = this.messageQueue.getLast();
@@ -347,7 +347,7 @@ public abstract class ChatHudMixin {
         //anti spam//
         /////////////
 
-        if ((boolean) Config.entries.get("enableAntiSpam").value && messageQueue.size() >= queueSize && cut$antiSpam(message, false)) {
+        if ((boolean) Config.HAS_ANTI_SPAM.value && messageQueue.size() >= queueSize && cut$antiSpam(message, false)) {
             return true;
         }
 
@@ -356,7 +356,7 @@ public abstract class ChatHudMixin {
         /////////////
 
         //do nothing if clock is disabled
-        if (!(boolean) Config.entries.get("enableClock").value)
+        if (!(boolean) Config.HAS_CLOCK.value)
             return true;
 
         //get current time
@@ -368,14 +368,14 @@ public abstract class ChatHudMixin {
         int second = timeNow.getSecond();
 
         //12h
-        if ((boolean) Config.entries.get("twelveHour").value) {
+        if ((boolean) Config.TWELVE_HOURS.value) {
             hour -= hour >= 13 ? 12 : 0;
         }
 
         //define if should send time message
         boolean newTime =
-                (boolean) Config.entries.get("onMessage").value ||
-                        ((boolean) Config.entries.get("showSeconds").value && second != ChatUtilities.lastSecond) ||
+                (boolean) Config.CLOCK_ON_MESSAGE.value ||
+                        ((boolean) Config.SHOW_SECONDS.value && second != ChatUtilities.lastSecond) ||
                         minute != ChatUtilities.lastMinute ||
                         hour != ChatUtilities.lastHour ||
                         messages.isEmpty();
@@ -391,14 +391,14 @@ public abstract class ChatHudMixin {
             MutableText time = new LiteralText("[" + String.format("%02d", hour) + ":" + String.format("%02d", minute)).formatted(Formatting.GRAY);
 
             //add seconds if enabled
-            if ((boolean) Config.entries.get("showSeconds").value)
+            if ((boolean) Config.SHOW_SECONDS.value)
                 time.append(new LiteralText(":" + String.format("%02d", second)));
 
             //close time text
             time.append("] ");
 
             //add message
-            if (!(boolean) Config.entries.get("onMessage").value) {
+            if (!(boolean) Config.CLOCK_ON_MESSAGE.value) {
                 this.addMessage(new LiteralText("").append(ChatUtilities.STYLE).append(" ").append(time).append(ChatUtilities.STYLE), 0);
             } else {
                 this.addMessage(new LiteralText("").append(time.formatted(Formatting.DARK_GRAY, Formatting.ITALIC)).append(message), 0);
