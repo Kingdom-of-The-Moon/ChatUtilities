@@ -9,7 +9,6 @@ import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import org.moon.chatutilities.ChatUtilities;
 
 import java.io.BufferedReader;
@@ -111,14 +110,14 @@ public final class ConfigManager {
 
             //generate names
             String name = MOD_NAME + ".config." + this.name().toLowerCase();
-            this.name = new TranslatableText(name);
-            this.tooltip = new TranslatableText(name + ".tooltip");
+            this.name = Text.translatable(name);
+            this.tooltip = Text.translatable(name + ".tooltip");
 
             //generate enum list
             if (length != null) {
                 List<Text> enumList = new ArrayList<>();
                 for (int i = 1; i <= length; i++)
-                    enumList.add(new TranslatableText(name + "." + i));
+                    enumList.add(Text.translatable(name + "." + i));
                 this.enumList = enumList;
             }
         }

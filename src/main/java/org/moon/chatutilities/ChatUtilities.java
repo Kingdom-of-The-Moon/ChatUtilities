@@ -16,7 +16,7 @@ public class ChatUtilities implements ClientModInitializer {
     public static int lastHour = -1;
     public static int lastMinute = -1;
     public static int lastSecond = -1;
-    public static final Text STYLE = new LiteralText("                       ").formatted(Formatting.DARK_GRAY, Formatting.STRIKETHROUGH);
+    public static final Text STYLE =Text.literal("                       ").formatted(Formatting.DARK_GRAY, Formatting.STRIKETHROUGH);
     public static SoundEvent soundEvent = null;
     public static Pattern pingRegex = null;
 

@@ -1,20 +1,19 @@
 package org.moon.chatutilities.mixin;
 
-import org.moon.chatutilities.config.ConfigScreen;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.option.ChatOptionsScreen;
-import net.minecraft.client.gui.screen.option.NarratorOptionsScreen;
-import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.gui.screen.option.SimpleOptionsScreen;
 import net.minecraft.client.option.GameOptions;
-import net.minecraft.client.option.Option;
+import net.minecraft.client.option.SimpleOption;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
+import org.moon.chatutilities.config.ConfigScreen;
+import net.minecraft.client.gui.screen.option.ChatOptionsScreen;
+import net.minecraft.client.gui.widget.ButtonWidget;
 import org.spongepowered.asm.mixin.Mixin;
 
 @Mixin(ChatOptionsScreen.class)
-public class ChatOptionsScreenMixin extends NarratorOptionsScreen {
+public class ChatOptionsScreenMixin  extends SimpleOptionsScreen {
 
-    public ChatOptionsScreenMixin(Screen parent, GameOptions gameOptions, Text title, Option[] options) {
+    public ChatOptionsScreenMixin(Screen parent, GameOptions gameOptions, Text title, SimpleOption<?>[] options) {
         super(parent, gameOptions, title, options);
     }
 
@@ -23,7 +22,7 @@ public class ChatOptionsScreenMixin extends NarratorOptionsScreen {
         this.addDrawableChild(new ButtonWidget(
                 this.width - 105, this.height - 25,
                 100, 20,
-                new TranslatableText("chatUtilities.gui.configbutton"),
+                Text.translatable("chatUtilities.gui.configbutton"),
                 button -> this.client.setScreen(new ConfigScreen(this))));
 
         super.initFooter();

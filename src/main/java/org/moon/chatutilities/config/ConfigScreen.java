@@ -5,7 +5,7 @@ import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.TranslatableText;
+import net.minecraft.text.Text;
 import org.moon.chatutilities.config.ConfigManager.Config;
 import org.moon.chatutilities.config.widgets.ConfigListWidget;
 
@@ -15,7 +15,7 @@ public class ConfigScreen extends Screen {
     private ConfigListWidget configListWidget;
 
     public ConfigScreen(Screen parentScreen) {
-        super(new TranslatableText(ConfigManager.MOD_NAME + ".gui.config.title"));
+        super(Text.translatable(ConfigManager.MOD_NAME + ".gui.config.title"));
         this.parentScreen = parentScreen;
     }
 
@@ -23,12 +23,12 @@ public class ConfigScreen extends Screen {
     protected void init() {
         super.init();
 
-        this.addDrawableChild(new ButtonWidget(this.width / 2 - 154, this.height - 29, 150, 20, new TranslatableText("gui.cancel"), (buttonWidgetx) -> {
+        this.addDrawableChild(new ButtonWidget(this.width / 2 - 154, this.height - 29, 150, 20, Text.translatable("gui.cancel"), (buttonWidgetx) -> {
             ConfigManager.discardConfig();
             this.client.setScreen(parentScreen);
         }));
 
-        this.addDrawableChild(new ButtonWidget(this.width / 2 + 4, this.height - 29, 150, 20, new TranslatableText("gui.done"), (buttonWidgetx) -> {
+        this.addDrawableChild(new ButtonWidget(this.width / 2 + 4, this.height - 29, 150, 20, Text.translatable("gui.done"), (buttonWidgetx) -> {
             ConfigManager.applyConfig();
             ConfigManager.saveConfig();
             this.client.setScreen(parentScreen);
@@ -42,7 +42,7 @@ public class ConfigScreen extends Screen {
     }
 
     @Override
-    public void onClose() {
+    public void close() {
         ConfigManager.applyConfig();
         ConfigManager.saveConfig();
         this.client.setScreen(parentScreen);

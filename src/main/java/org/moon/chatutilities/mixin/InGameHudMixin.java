@@ -5,7 +5,8 @@ import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.hud.InGameHud;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.LiteralText;
+import net.minecraft.text.MutableText;
+import net.minecraft.text.Text;
 import org.moon.chatutilities.config.ConfigManager.Config;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -40,11 +41,11 @@ public abstract class InGameHudMixin {
         if ((boolean) Config.SYS_TWELVE_HOURS.value)
             hour -= hour >= 13 ? 12 : 0;
 
-        LiteralText time = new LiteralText(String.format("%02d", hour) + ":" + String.format("%02d", minute));
+        MutableText time = Text.literal(String.format("%02d", hour) + ":" + String.format("%02d", minute));
 
         //add seconds if enabled
         if ((boolean) Config.SYS_SHOW_SECONDS.value)
-            time.append(new LiteralText(":" + String.format("%02d", second)));
+            time.append(Text.literal(":" + String.format("%02d", second)));
 
         int timeSize = this.getTextRenderer().getWidth(time);
 

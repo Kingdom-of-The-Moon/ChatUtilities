@@ -8,7 +8,6 @@ import net.minecraft.client.gui.hud.ChatHudLine;
 import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.client.util.ChatMessages;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
@@ -89,7 +88,7 @@ public abstract class ChatHudMixin {
             List<String> links = cut$imageLinks(message);
             boolean hasImage = links.size() > 0;
             if (hasImage) {
-                LiteralText newMessage = new LiteralText("");
+                MutableText newMessage = Text.literal("");
 
                 for(Text entry : message.getWithStyle(message.getStyle())) {
                     String str = entry.getString();
@@ -98,7 +97,7 @@ public abstract class ChatHudMixin {
                         str = str.replace(link, "§8§i<image>§r");
                     }
 
-                    newMessage.append(new LiteralText(str));
+                    newMessage.append(Text.literal(str));
                 }
 
                 imageLinks = links;
@@ -191,7 +190,7 @@ public abstract class ChatHudMixin {
             ),
             locals = LocalCapture.CAPTURE_FAILHARD
     )
-    private void postRenderDraw(MatrixStack matrices, int tickDelta, CallbackInfo ci, int i, int j, boolean bl, float f, int k, double d, double e, double g, double h, int l, int m, ChatHudLine<?> chatHudLine, int o, double p, int q, int r, int s, double t) {
+    private void postRenderDraw(MatrixStack matrices, int tickDelta, CallbackInfo ci, int i, int j, boolean bl, float f, int k, double d, double e, double g, double h, double l, int m, int n, ChatHudLine chatHudLine, int o, double p, int q, int r, int s, double t){
         if ((boolean) Config.SHOW_IMAGES.value) {
             List<String> links = ((ChatHudLineAccess)chatHudLine).getImageLinks();
             if (links != null)
@@ -281,10 +280,10 @@ public abstract class ChatHudMixin {
             spam++;
 
             //edit old message
-            Text formatted = (((MutableText) message).append(new LiteralText(" x" + spam).formatted(Formatting.DARK_GRAY, Formatting.ITALIC)));
+            Text formatted = (((MutableText) message).append(Text.literal(" x" + spam).formatted(Formatting.DARK_GRAY, Formatting.ITALIC)));
 
             if (hasClock) {
-                formatted = new LiteralText("").append(new LiteralText(lastMessageString[0] + " ").formatted(Formatting.DARK_GRAY, Formatting.ITALIC)).append(formatted);
+                formatted = Text.literal("").append(Text.literal(lastMessageString[0] + " ").formatted(Formatting.DARK_GRAY, Formatting.ITALIC)).append(formatted);
             }
 
             if (isQueue) {
@@ -388,20 +387,20 @@ public abstract class ChatHudMixin {
             ChatUtilities.lastSecond = second;
 
             //create time message
-            MutableText time = new LiteralText("[" + String.format("%02d", hour) + ":" + String.format("%02d", minute)).formatted(Formatting.GRAY);
+            MutableText time = Text.literal("[" + String.format("%02d", hour) + ":" + String.format("%02d", minute)).formatted(Formatting.GRAY);
 
             //add seconds if enabled
             if ((boolean) Config.SHOW_SECONDS.value)
-                time.append(new LiteralText(":" + String.format("%02d", second)));
+                time.append(Text.literal(":" + String.format("%02d", second)));
 
             //close time text
             time.append("] ");
 
             //add message
             if (!(boolean) Config.CLOCK_ON_MESSAGE.value) {
-                this.addMessage(new LiteralText("").append(ChatUtilities.STYLE).append(" ").append(time).append(ChatUtilities.STYLE), 0);
+                this.addMessage(Text.literal("").append(ChatUtilities.STYLE).append(" ").append(time).append(ChatUtilities.STYLE), 0);
             } else {
-                this.addMessage(new LiteralText("").append(time.formatted(Formatting.DARK_GRAY, Formatting.ITALIC)).append(message), 0);
+                this.addMessage(Text.literal("").append(time.formatted(Formatting.DARK_GRAY, Formatting.ITALIC)).append(message), 0);
                 return true;
             }
         }
