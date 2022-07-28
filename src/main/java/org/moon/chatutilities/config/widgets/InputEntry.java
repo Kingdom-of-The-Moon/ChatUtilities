@@ -8,10 +8,8 @@ import net.minecraft.client.gui.Selectable;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.MathHelper;
 import org.moon.chatutilities.config.ConfigManager;
 
@@ -35,9 +33,9 @@ InputEntry extends ConfigListWidget.Entry {
         //field
         Text fieldText;
         if (inputType == ConfigManager.InputType.HEX_COLOR)
-            fieldText = new LiteralText(String.format("#%06X", config.configValue));
+            fieldText = Text.literal(String.format("#%06X", config.configValue));
         else
-            fieldText = new LiteralText(config.configValue + "");
+            fieldText = Text.literal(config.configValue + "");
 
         this.field = new TextFieldWidget(client.textRenderer, 0, 0, 76, 16, fieldText);
         this.field.setChangedListener((text) -> {
@@ -50,11 +48,11 @@ InputEntry extends ConfigListWidget.Entry {
             }
         });
         this.field.setMaxLength(1000);
-        this.field.setText(fieldText.asString());
+        this.field.setText(fieldText.getString());
         this.field.setCursorToStart();
 
         //reset button
-        this.reset = new ButtonWidget(0, 0, 40, 20, new TranslatableText("controls.reset"), (button) -> {
+        this.reset = new ButtonWidget(0, 0, 40, 20, Text.translatable("controls.reset"), (button) -> {
             config.configValue = config.defaultValue;
             if (inputType == ConfigManager.InputType.HEX_COLOR)
                 this.field.setText(String.format("#%06X", config.configValue));
@@ -70,7 +68,7 @@ InputEntry extends ConfigListWidget.Entry {
         int posY = y + entryHeight / 2;
 
         if (this.field.isFocused() && this.inputType == ConfigManager.InputType.HEX_COLOR) {
-            Text text = new LiteralText("").append(this.title).append(" (").append(this.field.getText()).append(")");
+            Text text = Text.literal("").append(this.title).append(" (").append(this.field.getText()).append(")");
             textRenderer.draw(matrices, text, (float) x, (float) (posY - 9 / 2), 0xFFFFFF);
         }
         else {
